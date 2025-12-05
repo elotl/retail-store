@@ -1,0 +1,27 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: statefulset-retail-onprem-policy
+spec:
+
+  clusterSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: "selvi-onprem"
+
+  # this policy matches those resources that have this label' key value pair
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        retail-store-sample: ss-onprem
+
+  # this policy matches all resources that have the key listed below 
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: Exists
+
+  # K8s resources will be grouped by this label key i.e. those with the same "value" for this key will be 
+  # placed together in a single k8s workload cluster 
+  # TODO is grouping really needed when we spread-duplicate resources?
+  groupBy:
+    labelKey: retail-store-sample
