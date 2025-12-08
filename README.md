@@ -1,21 +1,22 @@
 # Retail-store Sample App Scheduled Using Nova
 
-## Nova Schedule Policies
 
-1. Use-case [1] CloudBurst
+## 1. Use-case "CloudBurst"
 
-In order to deploy three three-tier app to be primarily deployed on to the primary - on-prem cluster and spill onto a cloud cluster, we can use this set of policies:
+In order to deploy the three-tier app to be primarily deployed on to the primary - on-prem cluster and spill onto a cloud cluster, we can use this set of policies:
 
 
-### Spread Policies 
+### Nova Schedule Policies
 
-These K8s resources will be spread across both the `on-prem` and `cloud` cluster. We will use a Spread policy to achieve this:
+1. Spread Policies 
+
+These K8s resources will be deployed on both the `on-prem` and `cloud` cluster. We will use a Spread policy to achieve this:
 * ConfigMaps
 * Service Accounts
 * Secrets
 * Services
 
-### Specific-Cluster Policy
+2. Specific-Cluster Policy
 
 For the purpose of this example, we assume that the end-user prefers to keep their persistent data on one of their clusters, namely the on-prem cluster. We will use a specific-cluster SchedulePolicy to achieve this.
 In addition, the on-prem cluster has sufficient resources for some deployments. These will also be placed using Specific-cluster policies. 
@@ -23,12 +24,27 @@ In addition, the on-prem cluster has sufficient resources for some deployments. 
 * StatefulSets 
 * Deployments 
 
-### Fill and Spill Policy
+3. Fill and Spill Policy
 
 Deployments will be placed on one cluster preferentially and if needed can spill over to a second cluster. We use a Fill-and-Spill Policy to achieve this.
 
 * Deployments
 
+### App Manifest Additions
+
+
+1. Identifying Subsets of Resources
+
+We add labels to app manifests that will allow Nova Schedule policies to identify which resources need to be handled. If all resources within an app need to be handled similarly then the same label can be added to all resources.
+
+2. Identifying Global Services
+ 
+For Kubernetes resources that need to be split across more than 1 workload cluster, we use a Cluster Mesh for communication. When using a Cluster Mesh like Cilium, a specific annotation needs to be added to those Kubernetes services, termed as "Global Services" that need to be accessible from two or more Kubernetes workload clusters. This is an example of the annotation expected by the Cilium Cluster Mesh:
+
+```
+  annotations:
+    service.cilium.io/global: "true"
+```
 
 ## External Retail Store app 
 
