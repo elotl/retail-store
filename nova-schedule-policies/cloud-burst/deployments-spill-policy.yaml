@@ -4,6 +4,7 @@ metadata:
   name: deployments-retail-spill-policy
 spec:
 
+  # this section prioritizes workload clusters in the order listed below
   orderedClusterSelector:
     matchExpressions:
       - key: kubernetes.io/metadata.name
@@ -24,6 +25,5 @@ spec:
 
   # K8s resources will be grouped by this label key i.e. those with the same "value" for this key will be 
   # placed together in a single k8s workload cluster 
-  # TODO is grouping really needed when we spread-duplicate resources?
   groupBy:
     labelKey: retail-store-group
