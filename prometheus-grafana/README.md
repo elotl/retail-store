@@ -1,7 +1,7 @@
 # Scheduling the Prometheus + Grafana stack via Nova
 
 
-## Namespace creation
+## Namespace Creation
 
 Create the namespace policy and namespace `monitoring` on which Prometheus and Grafana will be installed:
 
@@ -39,6 +39,36 @@ KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig  helm install prom prometheu
   --set grafana.resources.requests.cpu=50m \
   --wait --timeout 5m
 ```
+
+Successful install output:
+
+```
+NAME: prom
+LAST DEPLOYED: Fri Dec 12 05:48:05 2025
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 1
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:
+  kubectl --namespace monitoring get pods -l "release=prom"
+
+Get Grafana 'admin' user password by running:
+
+  kubectl --namespace monitoring get secrets prom-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+
+Access Grafana local instance:
+
+  export POD_NAME=$(kubectl --namespace monitoring get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=prom" -oname)
+  kubectl --namespace monitoring port-forward $POD_NAME 3000
+
+Get your grafana admin user password by running:
+
+  kubectl get secret --namespace monitoring -l app.kubernetes.io/component=admin-secret -o jsonpath="{.items[0].data.admin-password}" | base64 --decode ; echo
+
+
+Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
+```
+
 
 ### Labeling CRDs
 
