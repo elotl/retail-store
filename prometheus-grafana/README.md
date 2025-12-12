@@ -1,18 +1,29 @@
 # Schedule Prometheus + Grafana stack via Nova
 
+Create the namespace policy and namespace `monitoring` on which Prometheus and Grafana will be installed:
 
-```
+```ssh
 KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig kubectl apply -f prom-grafana-namespace-policy.yaml
 KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig kubectl apply -f prom-grafana-namespace.yaml
+```
 
+Create the Nova Scheduling policy to deploy the Prometheus Grafana stack to a specific workload cluster:
+
+```ssh
 KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig kubectl apply -f prom-grafana-policy.yaml
 ```
 
-```ssh
-# Install Prometheus, Alertmanager, Grafana with Helm
-KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig  helm repo update
+This steps installs Prometheus, Alertmanager and Grafana via `helm`:
 
+```ssh
+KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+
+```ssh
+KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig  helm repo update
+```
+
+```ssh
 KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig  helm install prom prometheus-community/kube-prometheus-stack \
   --namespace monitoring --create-namespace\
   --set prometheus.prometheusSpec.resources.requests.memory=512Mi \
@@ -24,10 +35,9 @@ KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig  helm install prom prometheu
   --wait --timeout 5m
 ```
 
-Label CRDs for Nova scheduling to work: 
-(helm install will be in progress during this time)
+We now label the CRDs for Nova scheduling to work: 
 
-```
+```ssh
 PROM_CRDS=(
   "alertmanagerconfigs.monitoring.coreos.com"
   "alertmanagers.monitoring.coreos.com" 
@@ -40,7 +50,9 @@ PROM_CRDS=(
   "servicemonitors.monitoring.coreos.com"
   "thanosrulers.monitoring.coreos.com"
 )
+```
 
+```ssh
 # Patch with idempotent merge (safe to re-run)
 for CRD in "${PROM_CRDS[@]}"; do
   echo "Labeling $CRD..."
@@ -54,7 +66,8 @@ for CRD in "${PROM_CRDS[@]}"; do
 done
 ```
 
-Check that the pods are running on the workload cluster. Please replace the workload cluster name `selvik-12232` with the name of your workload cluster:
+We now check that the pods are running on the workload cluster. 
+Please replace the workload cluster name `selvik-12232` with the name of your workload cluster:
 
 ```ssh
 % kubectl get pods -n monitoring  --context selvik-12232
@@ -69,7 +82,6 @@ prom-prometheus-node-exporter-kc9c4                    1/1     Running   0      
 The Grafana dashboard can be accessed as follows:
 
 ```ssh
-# Grafana
 kubectl port-forward -n monitoring svc/prom-grafana 3000:80 --context selvik-12232
 ```
 
