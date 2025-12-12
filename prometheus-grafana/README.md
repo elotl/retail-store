@@ -1,4 +1,7 @@
-# Schedule Prometheus + Grafana stack via Nova
+# Scheduling the Prometheus + Grafana stack via Nova
+
+
+## Namespace creation
 
 Create the namespace policy and namespace `monitoring` on which Prometheus and Grafana will be installed:
 
@@ -6,6 +9,8 @@ Create the namespace policy and namespace `monitoring` on which Prometheus and G
 KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig kubectl apply -f prom-grafana-namespace-policy.yaml
 KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig kubectl apply -f prom-grafana-namespace.yaml
 ```
+
+## Helm chart Installation
 
 Create the Nova Scheduling policy to deploy the Prometheus Grafana stack to a specific workload cluster:
 
@@ -65,6 +70,8 @@ for CRD in "${PROM_CRDS[@]}"; do
   }'
 done
 ```
+
+## Verify Installation
 
 We now check that the pods are running on the workload cluster. 
 Please replace the workload cluster name `selvik-12232` with the name of your workload cluster:
