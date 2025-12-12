@@ -40,6 +40,8 @@ KUBECONFIG=/Users/selvik/.nova/nova/nova-kubeconfig  helm install prom prometheu
   --wait --timeout 5m
 ```
 
+### Labeling CRDs
+
 We now label the CRDs for Nova scheduling to work: 
 
 ```ssh
